@@ -28,7 +28,7 @@ def rebuild_bd():
 #EndPoint pour récupérer les informations sur le quizz
 @app.route('/quiz-info', methods=['GET'])
 def get_quizz_info():
-	return getQuizzInfo()
+	return getQuizInfo()
 
 # EndPoint delete all questions
 @app.route('/questions/all', methods=['DELETE'])

@@ -39,7 +39,7 @@ def goodToken(token):
         return False
 
 
-def getQuizzInfo():
+def getQuizInfo():
     try:
         with sqlite3.connect('quiz.db') as conn:
             #On récupère le nombre de questions
