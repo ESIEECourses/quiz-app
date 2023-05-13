@@ -6,44 +6,50 @@ import hashlib
 import sqlite3
 
 
-
-
-
 app = Flask(__name__)
 CORS(app)
 
 
+#Endpoint Racine
 @app.route('/')
 def hello_world():
 	x = 'world'
 	return f"Hello, {x}, it's rayen"
 
-'''
-# Début de la créations des différents EndPoints 
-# 1ère Partie: info score +connexion+ ajout des questions et réponses en BD + suppression data de la bdd
-# 2ème Partie: endpoints liés à l'ID des questions 
-# 3ème Partie: endpoints liés à la POSITION des questions 
-'''
-
-'''Début PARTIE 1'''
-#EndPoint pour récupérer les scores
-@app.route('/quiz-info', methods=['GET'])
-def GetQuizInfo():
-	return {"size": 0, "scores": []}, 200
-
-#EndPoint pour récupérer les scores
+#EndPoint rebuild-bd
 @app.route('/rebuild-db', methods=['POST'])
 def rebuild_bd():
-	return retrieveBD()
-	'''token = request.headers.get('Authorization')
-	if token:
+	token = request.headers.get('Authorization')
+	if(goodToken(token)):
 		return retrieveBD()
 	else:
-		return 'Unauthorized', 401'''
-	
+		return 'Unauthorized', 401
+
+#EndPoint pour récupérer les informations sur le quizz
+@app.route('/quiz-info', methods=['GET'])
+def get_quizz_info():
+	return getQuizzInfo()
+
+# EndPoint delete all questions
+@app.route('/questions/all', methods=['DELETE'])
+def delete_all_questions():
+	token = request.headers.get('Authorization')
+	if(goodToken(token)):
+		return deleteall()
+	else:
+		return 'Unauthorized', 401
+
+# EndPoint delete all participations 
+@app.route('/participations/all', methods=['DELETE'])
+def delete_all_participations():
+	token = request.headers.get('Authorization')
+	if(goodToken(token)):
+		return deleteallparticipations()
+	else:
+		return 'Unauthorized', 401
 	
 
-#EndPoint pour se connecter en tant qu'admin avec MDP haché 
+#Endpoint login 
 @app.route('/login', methods=['POST'])
 def PostLogin():
 	payload = request.get_json()
@@ -55,97 +61,53 @@ def PostLogin():
 	else:
 		return 'Unauthorized', 401
 
-#EndPoint pour ajouter une question dans la BDD  TEST OK
+
+#Endpoint ajout question
 @app.route('/questions', methods=['POST'])
 def PostQuestion():
 	token = request.headers.get('Authorization')
-	if token:
-		# Récupérer la question depuis le corps de la requête
-		question_data = request.get_json()
-		# Convertir la question JSON en objet Question
-		question = Question.json_to_question(json.dumps(question_data))
-		
-		if insert_question_reponse(question):
-			return {"id": question.position}, 200
-		else:
-			return {"error": "Failed to create question"}, 500
+	if(goodToken(token)):
+		return insert_question_reponses(request)
 	else:
 		return 'Unauthorized', 401
 	
+#Endpoint récupération d'une question et ses réponses par position
+@app.route('/questions', methods=['GET'])
+def get_question_at_position():
+	position = request.args.get('position')
+	return getQuestionByPosition(position)
 
-
-'''
-10/05/2023
-
-MAJ RESPECT DES TESTS DE LA COLLECTION POSTMAN
-'''
-
-# EndPoint delete question - unauthorized  TEST OK
-'''@app.route('/questions/1', methods=['DELETE'])
-def delete_first_question():
-	token = request.headers.get('Authorization')
-	if token:
-		return deleteq1()
-	else:
-		return 'Unauthorized', 401'''
-
-
-# EndPoint delete all question - unauthorized  TEST OK
-@app.route('/questions/all', methods=['DELETE'])
-def delete_all_questions():
-	token = request.headers.get('Authorization')
-	if token:
-		return deleteallq()
-	else:
-		return 'Unauthorized', 401
-
-
-
-# EndPoint Delete all participations TEST OK
-@app.route('/participations/all', methods=['DELETE'])
-def delete_all_participations():
-	token = request.headers.get('Authorization')
-	if token:
-		return deleteallp()
-	else:
-		return 'Unauthorized', 401
-
-
-# EndPoint Get question by id TEST OK
+#Endpoint get d'une question et ses réponses par ID
 @app.route('/questions/<questionId>', methods=['GET'])
 def get_question_by_id(questionId):
 	return getById(questionId)
-	
 
-# EndPoint Update question TEST OK
+#Endpoint update d'une question et ses réponses par ID
 @app.route('/questions/<questionId>', methods=['PUT'])
-def update_question(questionId):
+def update_question_by_id(questionId):
 	token = request.headers.get('Authorization')
-	if token:
-		return updateById(questionId)
+	if(goodToken(token)):
+		return updateById(request, questionId)
 	else:
 		return 'Unauthorized', 401
-
-
-    
-# EndPoint Get question by position TEST OK
-@app.route('/questions', methods=['GET'])
-def get_question_at_position_2():
-	position = request.args.get('position')
-	return getquestionposition(position)
 	
 
-    
-
-
-# EndPoint Delete question TEST OK
+#Endpoint delete d'une question et ses réponses par ID
 @app.route('/questions/<questionId>', methods=['DELETE'])
 def delete_question_by_id(questionId):
 	token = request.headers.get('Authorization')
-	if token:
-		return deleteById(questionId)
+	if(goodToken(token)):
+		return deleteById(request, questionId)
 	else:
 		return 'Unauthorized', 401
+
+
+#Endpoint participations 
+@app.route('/participations', methods=['POST'])
+def post_participation():
+	return postParticpation(request)
+	
+
 
 if __name__ == "__main__":
     app.run()
