@@ -13,6 +13,7 @@
   
   <script>
   import participationStorageService from "@/services/ParticipationStorageService";
+  import QuestionManager from "../views/QuestionManager.vue";
   export default {
   name: "NewQuizPage",
   data() {

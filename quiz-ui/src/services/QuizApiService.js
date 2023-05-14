@@ -30,7 +30,10 @@ export default {
   getQuizInfo() {
     return this.call("get", "quiz-info");
   },
-  //getQuestion(position) {
-    // not implemented
-  //}
+  getQuestion(position) {
+    return this.call("get", `questions/${position}`)
+  },
+  async postparticipations(data){
+    return this.call("post", `participations`, data)
+  }
 };
