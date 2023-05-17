@@ -108,6 +108,11 @@ def post_participation():
 	return postParticpation(request)
 	
 
+@app.route('/answers', methods=['GET'])
+def getAnswers():
+	return getGoodAnswers()
+
+
 
 if __name__ == "__main__":
     app.run()

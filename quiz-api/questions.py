@@ -113,6 +113,8 @@ def deleteall():
             cursor = conn.cursor()
             cursor.execute("DELETE FROM QUESTION")
             cursor.execute("DELETE FROM REPONSE")
+            cursor.execute("DELETE FROM PARTICIPATION")
+            cursor.execute("DELETE FROM sqlite_sequence WHERE name=\"PARTICIPATION\"")
             cursor.execute("DELETE FROM sqlite_sequence WHERE name=\"REPONSE\"")
             cursor.execute("DELETE FROM sqlite_sequence WHERE name=\"QUESTION\"")
 
@@ -225,7 +227,7 @@ def getQuestionByPosition(position):
                     'isCorrect': bool(rep[2] == 'True') # Convertir 'True' en True et 'False' en False
                 }
                 question.possible_answers.append(reponse)
-            print("MES INFFFFFFOOOOOOSSSSSSSSSSSSSSS", question.possible_answers)
+            
             # Conversion de l'objet Question en JSON
             json_data = question.question_to_json()
 
@@ -279,7 +281,7 @@ def updateById(request, questionId):
                     cursor.execute(f"DELETE FROM QUESTION WHERE id = {questionId}")
                     cursor.execute(f"DELETE FROM REPONSE WHERE positionquestion = {position_source}")
                     if position_source > position_destination:
-                        print("QUestion go up")
+                        print("Question go up")
                         # Ajouter +1 à toutes les questions et réponses ayant une position en base
                         # >= PositionDestination ET < PositionSource
                         cursor.execute(f"UPDATE QUESTION SET position = position + 1 WHERE position >= {position_destination} AND position < {position_source}")
@@ -344,14 +346,16 @@ def deleteById(request, questionId):
 def postParticpation(request):
     print("Adding participation")
     participationJson = request.get_json()
-    goodAnswers = getGoodAnswers()
+    goodAnswers = getGoodAnswers()[0]
+    print(goodAnswers)
     player_name = str(participationJson["playerName"])
     score = 0
-    if len(participationJson['answers']) != 10:
+    if len(participationJson["answers"]) != len(goodAnswers):
         return "Bad request", 400
     else:
-        for i in range(len(participationJson['answers'])):
-            if goodAnswers[i] == participationJson['answers'][i]:
+        print("len okay")
+        for i in range(len(participationJson["answers"])):
+            if goodAnswers[i] == participationJson["answers"][i]:
                 score+=1
         try:
             with sqlite3.connect('quiz.db') as conn:
@@ -385,4 +389,6 @@ def getGoodAnswers():
 
         
 
-        return goodAnswers
+        return goodAnswers,200
+    
+
