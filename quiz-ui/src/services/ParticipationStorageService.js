@@ -13,5 +13,12 @@ export default {
     },
     getParticipationScore() {
         return window.localStorage.getItem("participationScore");
+    },
+
+    getToken(){
+        return window.localStorage.getItem("token");
+    },
+    saveToken(token){
+        window.localStorage.setItem("token", token);
     }
   };

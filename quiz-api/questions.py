@@ -237,6 +237,9 @@ def getQuestionByPosition(position):
         return 'An error occurred while fetching the question', 500
     
 
+import sqlite3
+import json
+
 def updateById(request, questionId):
     print("Update data by ID: ", questionId)
     #Récupération du body dans la requête 
@@ -275,10 +278,17 @@ def updateById(request, questionId):
                     print('good execution of update')
                     # Supprimer les anciennes réponses associées à la question
                     cursor.execute(f"DELETE FROM REPONSE WHERE positionquestion = {position_source}")
+                    for answer in questionPython.possible_answers:
+                        cursor.execute(
+                            "INSERT INTO REPONSE (reponse, booleen, positionquestion) VALUES (?, ?, ?)",
+                            (answer['text'], str(answer['isCorrect']), position_source)
+                        )
+
+                    return 'Question updated (same position)',204
                 else:
                     print("We're switching to another position")
                     # Supprimer la question et ses réponses de la base de données
-                    cursor.execute(f"DELETE FROM QUESTION WHERE id = {questionId}")
+                    cursor.execute(f"DELETE FROM QUESTION WHERE position = {position_source}")
                     cursor.execute(f"DELETE FROM REPONSE WHERE positionquestion = {position_source}")
                     if position_source > position_destination:
                         print("Question go up")
@@ -298,16 +308,16 @@ def updateById(request, questionId):
                         (questionId, questionPython.title, questionPython.text, questionPython.image, questionPython.position)
                     )
 
-                # Insérer les nouvelles réponses dans la base de données
+                    # Insérer les nouvelles réponses dans la base de données
                     for answer in questionPython.possible_answers:
                         cursor.execute(
                             "INSERT INTO REPONSE (reponse, booleen, positionquestion) VALUES (?, ?, ?)",
-                            (answer['text'], str(answer['isCorrect']), questionPython.position)
+                            (answer['text'], str(answer['isCorrect']), position_destination)
                         )
                 
                 conn.commit()
     
-            return 'Question updated', 204
+            return 'Question updated (other position)', 204
     except sqlite3.Error as e:
         print("Erreur lors de l'update de la question et ses réponses par ID: ", e)
         return 'An error occurred while fetching the question', 500
@@ -391,4 +401,18 @@ def getGoodAnswers():
 
         return goodAnswers,200
     
+
+
+def getScores():
+    try:
+        with sqlite3.connect('quiz.db') as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM PARTICIPATION ORDER BY score DESC")
+            scores = cursor.fetchall()
+            return {'scores': scores}, 200
+        
+    except sqlite3.Error as e:
+            print("Erreur lors de a récupération des scores:", e)
+            return 'An error occurred while getting participations', 500
+
 

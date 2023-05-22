@@ -1,62 +1,48 @@
 <template>
-  <div>
-    <header>
-      <div class="wrapper">
-        <nav>
-          <RouterLink to="/">Home</RouterLink>
-          <RouterLink to="/about">About</RouterLink>
-        </nav>
-      </div>
+    <header class="header">
+      <nav>
+        <RouterLink to="/"><h1 class="texto">Home</h1></RouterLink>
+        <RouterLink to="/admin"><h1 class="texto">Admin</h1></RouterLink>
+      </nav>
     </header>
 
-    <main>
+    <main>  
       <RouterView />
     </main>
-  </div>
 </template>
 
-<style scoped>
-header {
+
+
+<script>
+import { RouterLink, RouterView } from 'vue-router';
+
+export default {
+  name: 'App',
+  components: {
+    RouterLink,
+    RouterView,
+  },
+};
+</script>
+
+
+<style>
+.header {
   background-color: #333;
-  padding: 1rem;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 999;
+  color: #fff;
+  padding: 20px;
+  position: relative;
+  z-index: 10;
 }
 
-.wrapper {
+.header nav {
   display: flex;
   justify-content: center;
 }
 
-nav {
-  font-size: 1rem;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0.5rem 1rem;
+.header nav a {
+  margin: 0 10px;
+  color: #fff;
   text-decoration: none;
-  color: #333;
-}
-
-nav a.router-link-active {
-  color: #000;
-  font-weight: bold;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
-  }
-
-  nav {
-    margin-left: 2rem;
-  }
 }
 </style>

@@ -30,10 +30,38 @@ export default {
   getQuizInfo() {
     return this.call("get", "quiz-info");
   },
-  getQuestion(position) {
-    return this.call("get", `questions/${position}`)
+  getQuestion(id) {
+    return this.call("get", `questions/${id}`);
   },
   async postparticipations(data){
-    return this.call("post", `participations`, data)
+    return this.call("post", `participations`, data);
+  },
+  getAnswers(){
+    return this.call("get", '/answers');
+  },
+
+  getAdminToken(password){
+    return this.call("post", "/login", password);
+  },
+  deleteAllQuestion(token){
+    return this.call("delete", "/questions/all",null, token)
+  },
+  deleteAllParticipation(token){
+    return this.call("delete", "/participations/all",null, token)
+  },
+  addNewQuestion(question, token){
+    return this.call("post", '/questions', question, token)
+  },
+  deleteOneQuestionById(questionId, token) {
+    return this.call("delete", `/questions/${questionId}`, null, token);
+  },
+  getQuestionByPosition(position) {
+    return this.call("get", `/questions?position=${position}`);
+  },
+  updateQuestionById(questionId, updatedQuestion, token) {
+    return this.call("put", `/questions/${questionId}`, updatedQuestion, token);
+  },
+  getAllParticipations(){
+    return this.call("get", "/classement")
   }
 };

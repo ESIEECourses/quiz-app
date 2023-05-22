@@ -112,6 +112,10 @@ def post_participation():
 def getAnswers():
 	return getGoodAnswers()
 
+@app.route('/classement', methods=['GET'])
+def get_scores():
+	return getScores()
+
 
 
 if __name__ == "__main__":
