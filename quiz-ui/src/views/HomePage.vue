@@ -15,13 +15,13 @@
       </div>
       <div class="score-grid" v-else>
         <div class=" first-score" :key="0">
-          <img src="src/assets/gold-cup.png" alt="Gold Trophy" class="trophy-image"/>
+          <img src="/src/assets/gold-cup.png" alt="Gold Trophy" class="trophy-image"/>
           {{ topScores[0].playerName }} - {{ topScores[0].score }}
         </div>
         <div class="second-third-score">
         <div v-for="(scoreEntry, index) in topScores.slice(1)" :key="index + 1" class="score-item">
-          <img v-if="index === 0" src="src/assets/silver-cup.png" alt="Silver Trophy" class="trophy-image" />
-          <img v-else-if="index === 1" src="src/assets/bronze-cup.png" alt="Bronze Trophy" class="trophy-image"/>
+          <img v-if="index === 0" src="/src/assets/silver-cup.png" alt="Silver Trophy" class="trophy-image" />
+          <img v-else-if="index === 1" src="/src/assets/bronze-cup.png" alt="Bronze Trophy" class="trophy-image"/>
           {{ scoreEntry.playerName }} - {{ scoreEntry.score }}
         </div>
         </div>

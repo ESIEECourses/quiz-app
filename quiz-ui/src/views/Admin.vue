@@ -1,5 +1,6 @@
 <template>
-  <div v-if="!isAdminLoggedIn()" class="row">
+
+  <div class="row">
     <!-- MODE ADMINISTRATEUR DECONNECTÉ-->
     <div class="column">
 
@@ -18,15 +19,17 @@
             </button>
           </div>
         
-            
+        
         </form>
         <div v-if="showErrorBubble" class="error-bubble">
-          Veuillez entrer un pseudo
+          Mot de passe incorrect !
         </div>
-        </div>
+      </div>
       
     </div>
+    
     <div class="column">
+      
       <div class="vader">
         <div class="shadow"></div>
         <div class="head"><div class="helmet"><span class="left"></span><span class="right"></span></div><div class="eyes"><span class="left"></span><span class="right"></span></div><span class="grill"><span class="left"></span><span class="center"></span><span class="right"></span></span><span class="mask"><span class="top"></span><span class="left"></span><span class="center"></span><span class="right"></span></span><span class="line"></span></div>
@@ -37,183 +40,46 @@
         <div class="boots"><span class="left"></span><span class="right"></span></div>
         <div class="sword animation-left"><span class="handle"></span><span class="light"></span></div>
         </div>
-    </div>
-  </div>
-  <div v-else-if="isAdminLoggedIn() && showQuestionList && !selectedQuestionId" class="row">
-    <div>
-      <button class='neon button-margin' @click="logout">Déconnexion</button>
-      <button class='neon button-margin' @click="deleteAllQuestions">Supprimer toutes les questions</button>
-      <button class='neon button-margin' @click="deleteAllParticipations">Supprimer toutes les participations</button>
-    </div>
-    <QuestionList v-if="showQuestionList" :questions-data="questionsData" @edit-question="editQuestion"></QuestionList>
- 
-  </div>
-  <div v-else-if="isAdminLoggedIn() && selectedQuestionId" class="row">
-    <div>
-      <button class='neon' @click="logout">Déconnexion</button>
+        
     </div>
     
-    <QuestionEdition v-if="selectedQuestionId" :question="getSelectedQuestion()" :questions-data-length="questionsData.length" @cancel-edit="cancelEditQuestion" ></QuestionEdition>
   </div>
-    
-  
 </template>
-  
-  <script>
-  import quizApiService from "@/services/QuizApiService";
-  import QuestionList from '@/components/QuestionList.vue';
-  import QuestionEdition from '@/components/QuestionEdition.vue';
-  import ImageUpload from "../components/ImageUpload.vue";
-  import participationStorageService from "@/services/ParticipationStorageService";
-  export default {
-    name: 'Admin',
-    data() {
-      return {
-        showErrorBubble: false,
-        editingQuestion: false,
-        password: '',
-        adminMode: '',
-        selectedQuestionId: null,
-        showQuestionList: true,
-        questionsData: [],
-        questionId: null,
-        deletedAllQuestions: false,
-        deletedAllParticipations: false,
-        updatedQuestion: false,
-        newQuestion: {
-          id: '',
-          text: '',
-          title: '',
-          image: '',
-          position: null,
-          answers: [],
-          correctOption: null,
-        },
-        
-      };
-    },
-    
-    methods: {
-      isAdminLoggedIn() {
-        console.log('inside the isAdminLoggedIN');
-        const adminToken = participationStorageService.getToken();
-        console.log('inside the isAdminLoggedIN and the value of the token is:', !!adminToken);
-        return !!adminToken;
-      },
-      async login(event) {
-        
-        console.log('Login en cours');
-        try {
-            const response = await quizApiService.getAdminToken({ "password": this.password });
-            if (response.status === 200) {
-                const adminToken = response.data.token;
-                participationStorageService.saveToken(adminToken);
-            } else{
-              console.log("WRONG PASSWORD !")
-              this.showErrorBubble = true; // Afficher la bulle d'erreur
-            }
-        } catch (error) {
-            console.error('Erreur lors de la requête API', error);
-        }
-        
-      },
-      getSelectedQuestion() {
-        // Vérifiez d'abord si vous avez les données des questions disponibles
-        if (this.questionsData && this.selectedQuestionId) {
-          // Recherchez la question correspondante à l'aide de son ID
-          const selectedQuestion = this.questionsData.find(question => question.id === this.selectedQuestionId);
-          console.log("Dans Admin.vue getSelectedQuestion avec la valeur ", selectedQuestion);
-          return selectedQuestion;
-        }
-        // Si les données des questions ne sont pas disponibles ou si l'ID de la question sélectionnée est vide, renvoyez null ou une valeur par défaut appropriée
-        return null;
-      },
-      logout() {
-        participationStorageService.clear();
-        this.password = '';
-        window.location.reload();
-      },
-      setAdminMode(mode) {
-        console.log('inside the setAdminMode');
-        this.adminMode = mode;
-        console.log('inside the setAdminMode and the value is: ', this.adminMode);
-        
-      },
-      editQuestion(questionId) {
-        console.log("Dans Admin.vue la fonction editQuestion ligne 119 est lancée", questionId);
-        this.selectedQuestionId = questionId;
-        this.showQuestionList = false;
-    },
-    cancelEditQuestion() {
-      this.selectedQuestionId = null;
-      this.showQuestionList = true;
-    },
-    async deleteAllQuestions(){
-      const token = participationStorageService.getToken();
-      console.log(token);
-      try {
-        const response = await quizApiService.deleteAllQuestion(token);
-        if (response.status === 204){
-          console.log('deleted questions all')
-          this.deletedAllQuestions = true;
-          setTimeout(() => {
-            this.deletedAllQuestions = false;
-          }, 3000);
-        }
-      }catch(error) {
-          console.error('Erreur lors de la requête API', error);
 
-      }
+
+<script>
+import quizApiService from "@/services/QuizApiService";
+import participationStorageService from "@/services/ParticipationStorageService";
+
+export default {
+  name: 'Admin',
+  data() {
+    return {
+      showErrorBubble: false,
+      password: '',
+    };
   },
-  async deleteAllQuestions(){
-      const token = participationStorageService.getToken();
-      console.log(token);
+  methods: {
+    async login(event) {
+      event.preventDefault();
       try {
-        const response = await quizApiService.deleteAllQuestion(token);
-        if (response.status === 204){
-          console.log('deleted questions all')
-          this.deletedAllQuestions = true;
-          setTimeout(() => {
-            this.deletedAllQuestions = false;
-          }, 3000);
+        const response = await quizApiService.getAdminToken({ "password": this.password });
+        if (response.status === 200) {
+          const adminToken = response.data.token;
+          participationStorageService.saveToken(adminToken);
+          this.$router.push("/admin/questionlist");
         }
-      }catch(error) {
-          console.error('Erreur lors de la requête API', error);
-
+      } catch (error) {
+        this.showErrorBubble = true;
+        console.error('Erreur lors de la requête API', error);
       }
-    },
-
-    async deleteAllParticipations(){
-      console.log("INSIIIIIDE del participations");
-      const token = participationStorageService.getToken();
-      console.log(token);
-      try {
-        const response = await quizApiService.deleteAllParticipation(token);
-        if (response.status === 204){
-          console.log('deleted participations all')
-          this.deletedAllParticipations = true;
-          setTimeout(() => {
-            this.deletedAllParticipations = false;
-          }, 3000);
-        }
-      }catch(error) {
-          console.error('Erreur lors de la requête API', error);
-
-      }
-    },
-  },
-    components: {
-      QuestionList,
-      QuestionEdition,
-      ImageUpload
     }
-  };
-  </script>
+  }
+};
+</script>
+
+
 <style scoped>
-
-
-/*Début de la réfactorisation*/
-
 .button-margin{
   margin-right: 1rem;
 }
@@ -274,6 +140,7 @@ button:hover{
   border-radius: 5px;
   margin-top: 5px;
 }
+
 p{
   font-size: 1rem;
   text-align: center;
@@ -283,6 +150,12 @@ p{
   border-radius: 70%;
   padding: 0.5rem;
   position: relative;
+}
+
+
+.create-block{
+  display:flex;
+  justify-content: center;
 }
 .login-box {
   top: 50%;
@@ -498,157 +371,5 @@ a:hover{text-decoration:underline}
 .vader:hover .eyes .left{background:#d81f27}
 .vader:hover .eyes .right{background:#455caa}
 
-/* Fin de la réfactorisation */
 
-/*
-.admin-page {
-  display: flex;
-  flex-direction: column;
-  
-  justify-content: center;
-  height: 100vh;
-}
-
-.admin-page h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-.admin-page h2 {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
-.admin-page button {
-  padding: 10px 20px;
-  background-color: #333;
-  color: #03e9f4;
-  font-weight: bold;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-right: 30px;
-  
-
-}
-
-.admin-page button:hover {
-  background-color: #03e9f4;
-  color: #050801;
-}
-
-.admin-login {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.admin-login .form-group {
-  margin-bottom: 10px;
-}
-
-.admin-login .form-label {
-  text-align: center;
-}
-
-.admin-login .form-control {
-  margin-bottom: 10px;
-  padding: 5px;
-}
-
-.admin-login .neon {
-  margin-top: 10px;
-}
-
-.admin-login .neon:hover {
-  box-shadow: 0 0 5px #03e9f4, 0 0 25px #03e9f4, 0 0 50px #03e9f4, 0 0 200px #03e9f4;
-}
-
-
-div{
-  margin-bottom: 20px;
-}
-
-.columns-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.left-column {
-  flex: 0.5;
-  margin-left: 50px;
-  
- 
-}
-
-.right-column {
-  flex: 0.5;
-  padding-top:300px;
- 
-}
-
-#snackbar {
-  visibility: hidden;
-  min-width: 250px;
-  margin-left: -125px;
-  background-color: #333;
-  color: #fff;
-  text-align: center;
-  border-radius: 2px;
-  padding: 16px;
-  position: fixed;
-  z-index: 1;
-  left: 50%;
-  bottom: 30px;
-  font-size: 17px;
-}
-
-#snackbar.show {
-  visibility: visible;
-  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-  animation: fadein 0.5s, fadeout 0.5s 2.5s;
-}
-
-@-webkit-keyframes fadein {
-  from { bottom: 0; opacity: 0; } 
-  to { bottom: 30px; opacity: 1; }
-}
-
-@keyframes fadein {
-  from { bottom: 0; opacity: 0; }
-  to { bottom: 30px; opacity: 1; }
-}
-
-@-webkit-keyframes fadeout {
-  from { bottom: 30px; opacity: 1; } 
-  to { bottom: 0; opacity: 0; }
-}
-
-@keyframes fadeout {
-  from { bottom: 30px; opacity: 1; }
-  to { bottom: 0; opacity: 0; }
-}
-.admin-page input[type="text"],
-.admin-page textarea {
-  width: 300px; 
-  height: 20px; 
-  margin-bottom: 10px; 
-}
-
-
-.admin-page .form-control {
-  width: 100px;
-}
-
-.admin-page .answer-container {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.admin-page .answer-container .form-group {
-  flex-basis: 50%;
-}
-*/
 </style>

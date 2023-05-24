@@ -4,6 +4,9 @@ import NewQuizPage from '@/views/NewQuizPage.vue'
 import QuestionManager from '@/views/QuestionManager.vue'
 import ScorePage from '@/views/ScorePage.vue'
 import Admin from '@/views/Admin.vue'
+import QuestionList from '@/views/QuestionList.vue'
+import QuestionEdition from '@/views/QuestionEdition.vue';
+import QuestionCreate from '@/views/QuestionCreate.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -13,12 +16,26 @@ const router = createRouter({
       component: HomePage
     },
     {
+      path: '/admin/question/add',
+      name: 'QuestionCreate',
+      component: QuestionCreate
+      
+    },
+
+    {
       path: '/admin',
       name: "Admin",
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: Admin 
+    },
+    {
+      path: '/admin/questionlist',
+      name: "QuestionList",
+      component: QuestionList 
+    },
+    {
+      path: '/admin/question/edit/:questionId',
+      name: 'QuestionEdition',
+      component: QuestionEdition,
     },
     {
       path: "/start-new-quiz-page",
