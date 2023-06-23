@@ -120,14 +120,14 @@
         
         participationStorageService.saveParticipationScore(this.score);
         
-;        //console.log(this.player)
+        //console.log(this.player)
         //console.log("Valeur du playername", this.player.playerName);
         //console.log("Type du playerName:", typeof this.player.playerName);
         //console.log("Valeur des réponses", answersArray);
         //console.log("Type des réponses:", typeof answersArray);
         //this.player.answers = answersArray;
         //console.log({"playerName": this.player.playerName, "answers": this.player.answers })
-        const postResult = await quizApiService.postparticipations(this.player);
+        //const postResult = await quizApiService.postparticipations(this.player);
         
         // Construire l'URL avec les paramètres du score
         const scorePageURL = `/score?score=${this.score}`;
